@@ -1,0 +1,1 @@
+Check License documentation.

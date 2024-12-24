@@ -1,0 +1,42 @@
+name: Publish Unity Package
+
+on:
+  release:
+    types: [published]  # release가 publish 될 때만 트리거
+
+jobs:
+  publish:
+    name: Publish Package to GitHub Packages
+    runs-on: ubuntu-latest
+    if: github.event.release.target_commitish == 'release'  # release 브랜치의 릴리스만 허용
+
+    steps:
+      # 1. 코드 체크아웃
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.release.tag_name }}  # 릴리스 태그로 체크아웃
+
+      # 2. Node.js 설정
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '14'
+          registry-url: 'https://npm.pkg.github.com/'
+          scope: '@creator-hian'
+          always-auth: true
+
+      # 3. GitHub Packages 인증 설정
+      - name: Configure npm for GitHub Packages
+        run: |
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.REPOSITORY_PAT }}" > ~/.npmrc
+
+      # 4. 패키지 종속성 설치
+      - name: Install Dependencies
+        run: npm install
+
+      # 5. 패키지 퍼블리시
+      - name: Publish Package
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.REPOSITORY_PAT }}

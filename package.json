@@ -1,0 +1,23 @@
+{
+  "name": "com.creator-hian.unity.package-sample",
+  "version": "0.0.1",
+  "displayName": "Hian Package Sample",
+  "unity": "2021.3",
+  "keywords": [
+    "Hian"
+  ],
+  "author": {
+    "name": "creator-hian",
+    "email": "shahian12@gmail.com",
+    "url": "https://github.com/creator-hian"
+  },
+  "description": "Unity Package 작성을 위한 Base Repository입니다.",
+  "dependencies": {},
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/@creator-hian"
+  },
+  "repository": {
+    // "type": "git",
+    // "url": "git+https://github.com/creator-hian/Unity-Common.git"
+  }
+}
