@@ -1,23 +1,27 @@
 {
-  "name": "com.creator-hian.unity.package-sample",
-  "version": "0.0.1",
-  "displayName": "Hian Package Sample",
+  "name": "com.creator-hian.unity.dirty-flag",
+  "version": "0.1.0",
+  "displayName": "Hian Unity Dirty Flag",
+  "description": "Unity에서 값의 변경을 추적하고 관리하는 Dirty Flag 패턴 구현 라이브러리입니다.",
   "unity": "2021.3",
   "keywords": [
-    "Hian"
+    "dirty-flag",
+    "state-management",
+    "tracking",
+    "utility",
+    "pattern"
   ],
   "author": {
     "name": "creator-hian",
     "email": "shahian12@gmail.com",
     "url": "https://github.com/creator-hian"
   },
-  "description": "Unity Package 작성을 위한 Base Repository입니다.",
   "dependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/creator-hian/Unity-Dirty-Flag.git"
+  },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/@creator-hian"
-  },
-  "repository": {
-    // "type": "git",
-    // "url": "git+https://github.com/creator-hian/Unity-Common.git"
   }
 }
