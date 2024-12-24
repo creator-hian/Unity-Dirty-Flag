@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Hian.DirtyFlag
 {
@@ -97,6 +98,8 @@ namespace Hian.DirtyFlag
         public IDirty<T> Clone()
         {
             var clone = new ExtendedDirty<T>(_currentValue, _comparer, _maxHistoryCount);
+            clone._isDirty = _isDirty;
+            clone._originalValue = _originalValue;
             foreach (var historyItem in _history)
             {
                 clone._history.Enqueue(historyItem);

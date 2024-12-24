@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Hian.DirtyFlag
 {
@@ -36,11 +37,12 @@ namespace Hian.DirtyFlag
         /// </summary>
         public override T Value
         {
+            get => base.Value;
             set
             {
-                base.Value = value;
-                if (_isDirty)
+                if (!_comparer.Equals(_currentValue, value))
                 {
+                    base.Value = value;
                     AddToHistory(value);
                 }
             }
@@ -89,7 +91,17 @@ namespace Hian.DirtyFlag
             var historyList = _history.ToList();
             if (historyIndex >= 0 && historyIndex < historyList.Count)
             {
-                Value = historyList[historyIndex];
+                // 이력을 현재 인덱스까지만 유지
+                _history.Clear();
+                for (int i = 0; i <= historyIndex; i++)
+                {
+                    _history.Enqueue(historyList[i]);
+                }
+
+                // 값 설정
+                _currentValue = historyList[historyIndex];
+                _isDirty = !_comparer.Equals(_currentValue, _originalValue);
+
                 return true;
             }
             return false;
