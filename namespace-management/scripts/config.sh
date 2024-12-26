@@ -7,8 +7,6 @@ TARGET_NS="FAMOZ"
 # 디렉토리 설정
 TARGET_DIR="."
 LOG_DIR="logs"
-BACKUP_DIR="backups/$(date '+%Y%m%d_%H%M%S')"
-TEST_DIR="test_namespace"
 
 # 로그 파일 설정
 LOG_FILE="${LOG_DIR}/namespace-conversion-$(date '+%Y%m%d_%H%M%S').log"
@@ -44,6 +42,4 @@ log_error() {
 # 디렉토리 생성 함수
 ensure_directories() {
     mkdir -p "$LOG_DIR"
-    mkdir -p "$BACKUP_DIR"
-    [[ -n "$TEST_DIR" ]] && mkdir -p "$TEST_DIR"
 } 
