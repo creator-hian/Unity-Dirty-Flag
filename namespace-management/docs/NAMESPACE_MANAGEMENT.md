@@ -26,6 +26,7 @@
   - 안정적인 백업
   - Assembly Definition 파일 지원
   - 테스트 자동화
+  - 중앙 집중식 설정 관리
 
 - **단점**
   - 수동 실행 필요
@@ -52,34 +53,62 @@ namespace-management/
 ├── docs/
 │   └── NAMESPACE_MANAGEMENT.md
 ├── scripts/
-│   ├── convert-namespace.sh    # 네임스페이스 변환
-│   ├── setup-git-filter.sh     # 보조 Git 필터 설정
-│   └── test-namespace.sh       # 변환 테스트
+│   ├── config.sh             # 공통 설정 및 유틸리티
+│   ├── convert-namespace.sh  # 네임스페이스 변환
+│   ├── setup-git-filter.sh   # 보조 Git 필터 설정
+│   └── test-namespace.sh     # 변환 테스트
 └── ci/
-    └── .gitlab-ci.yml          # 선택적 CI/CD 통합
+    └── .gitlab-ci.yml        # 선택적 CI/CD 통합
 ```
 
 ### 2. 스크립트 구성
 
-#### 2.1 네임스페이스 변환 스크립트 (`convert-namespace.sh`)
+#### 2.1 공통 설정 (`config.sh`)
 
 주요 기능:
-- 컬러 로깅 지원
+- 네임스페이스 설정 (SOURCE_NS, TARGET_NS)
+- 디렉토리 경로 설정
+- Git 필터 설정
+- 로깅 유틸리티
+- 공통 함수
+
+```bash
+# 네임스페이스 설정
+SOURCE_NS="Hian"
+TARGET_NS="FAMOZ"
+
+# 디렉토리 설정
+TARGET_DIR="."
+LOG_DIR="logs"
+BACKUP_DIR="backups/$(date '+%Y%m%d_%H%M%S')"
+TEST_DIR="test_namespace"
+
+# Git 필터 설정
+GIT_FILTER_NAME="namespace-convert"
+GIT_FILTER_CLEAN="sed -e \"s/namespace ${SOURCE_NS}/namespace ${TARGET_NS}/g\" -e \"s/using ${SOURCE_NS}/using ${TARGET_NS}/g\""
+```
+
+#### 2.2 네임스페이스 변환 스크립트 (`convert-namespace.sh`)
+
+주요 기능:
+- 설정 파일 로드
 - 파일별 백업 생성
 - Assembly Definition 파일 처리
 - 상세한 에러 처리
-- 로그 파일 생성
+- 진행 상황 로깅
 
-#### 2.2 Git 보조 필터 (`setup-git-filter.sh`)
+#### 2.3 Git 보조 필터 (`setup-git-filter.sh`)
 
 주요 기능:
-- 선택적 Git 필터 설정
+- 설정 파일 로드
+- Git 필터 자동 설정
 - .gitattributes 자동 구성
 - 설정 상태 확인
 
-#### 2.3 테스트 스크립트 (`test-namespace.sh`)
+#### 2.4 테스트 스크립트 (`test-namespace.sh`)
 
 주요 기능:
+- 설정 파일 로드
 - Unity 스타일의 테스트 파일 생성
 - Assembly Definition 테스트
 - Git 필터 테스트
@@ -93,10 +122,13 @@ namespace-management/
 # 1. namespace-management 폴더 생성
 mkdir -p namespace-management/{scripts,docs,ci}
 
-# 2. 스크립트 파일 생성 및 권한 설정
+# 2. 스크립트 파일 생성
+cp config.sh convert-namespace.sh setup-git-filter.sh test-namespace.sh namespace-management/scripts/
+
+# 3. 스크립트 권한 설정
 chmod +x namespace-management/scripts/*.sh
 
-# 3. .gitignore 설정
+# 4. .gitignore 설정
 cat << EOF >> .gitignore
 logs/
 backups/
@@ -117,29 +149,20 @@ git add -u
 git commit -m "chore: Remove namespace-management folder"
 ```
 
-#### 3.3 동기화 프로세스
-
-```bash
-# 1. main 브랜치에서 변환 실행
-git checkout main
-./namespace-management/scripts/convert-namespace.sh
-
-# 2. FAMOZ 브랜치 동기화
-git checkout famoz-main
-git merge main
-```
-
 ### 4. 파일 관리
 
 #### 4.1 자동 생성 디렉토리
 - `logs/`: 변환 로그 저장
-- `backups/`: 파일 백업 저장
-- 두 디렉토리 모두 .gitignore에 포함
+  - `namespace-conversion-[날짜_시간].log`: 변환 로그
+  - `namespace-test-[날짜_시간].log`: 테스트 로그
+- `backups/[날짜_시간]/`: 파일 백업 저장
+  - 원본 파일 구조 유지
+  - 변환 전 상태 보존
 
 #### 4.2 버전 관리 대상
-- `scripts/`: 변환 스크립트
-- `docs/`: 문서
-- `ci/`: CI/CD 설정
+- `scripts/`: 모든 스크립트 파일
+- `docs/`: 문서 파일
+- `ci/`: CI/CD 설정 파일
 
 ### 5. 문제 해결
 
@@ -170,36 +193,29 @@ cp backups/[날짜_시간]/[파일명] [원래경로]
 ./scripts/convert-namespace.sh
 ```
 
-### 6. 모니터링 및 유지보수
+### 6. 로그 시스템
 
-#### 6.1 로그 관리
-- 위치: `logs/namespace-conversion-[날짜_시간].log`
-- 내용: 변환 이력, 에러, 경고
+#### 6.1 로그 파일 구조
+- 타임스탬프 포함
+- 컬러 코딩된 로그 레벨
+  - `[INFO]`: 녹색
+  - `[WARN]`: 노란색
+  - `[ERROR]`: 빨간색
+- 상세한 작업 내역
 
-#### 6.2 백업 관리
-- 위치: `backups/[날짜_시간]/[원본경로]`
-- 정책: 주기적 정리 (예: 30일 이상 백업 삭제)
+#### 6.2 로그 종류
+- 변환 로그: 네임스페이스 변환 작업 기록
+- 테스트 로그: 테스트 실행 결과
+- Git 필터 로그: Git 필터 설정 상태
 
-### 7. 선택적 CI/CD 통합
+### 7. 유지보수
 
-```yaml
-# .gitlab-ci.yml
-stages:
-  - validate
-  - convert
-  - test
+#### 7.1 설정 관리
+- `config.sh`에서 모든 설정 중앙 관리
+- 네임스페이스 변경 시 한 곳에서 수정
+- Git 필터 규칙 통합 관리
 
-validate_namespace:
-  stage: validate
-  script:
-    - ./scripts/test-namespace.sh
-  only:
-    - famoz-main
-
-convert_namespace:
-  stage: convert
-  script:
-    - ./scripts/convert-namespace.sh
-  only:
-    - famoz-main
-```
+#### 7.2 백업 관리
+- 날짜별 백업 디렉토리 자동 생성
+- 원본 파일 구조 보존
+- 주기적 정리 권장 (30일 이상 백업 삭제)
