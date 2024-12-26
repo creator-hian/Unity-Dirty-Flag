@@ -1,0 +1,25 @@
+stages:
+  - validate
+  - convert
+  - test
+
+validate_namespace:
+  stage: validate
+  script:
+    - ./scripts/test-namespace.sh
+  only:
+    - famoz-main
+
+convert_namespace:
+  stage: convert
+  script:
+    - ./scripts/convert-namespace.sh
+  only:
+    - famoz-main
+
+test_conversion:
+  stage: test
+  script:
+    - # 여기에 단위 테스트 추가
+  only:
+    - famoz-main 
