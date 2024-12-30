@@ -100,7 +100,7 @@ var batchResult = context.Execute();
 1. Unity 에디터에서 Window > Package Manager를 엽니다.
 2. 좌측 상단의 + 버튼을 클릭하고 "Add package from git URL"을 선택합니다.
 
-   ![Package Manager Add Git URL](Document/upm-ui-giturl.png)
+   ![Package Manager Add Git URL](https://i.imgur.com/1tCNo66.png)
 3. 다음 URL을 입력합니다:
 
 ```text
@@ -109,7 +109,7 @@ https://github.com/creator-hian/Unity-Dirty-Flag.git
 
 4. 'Add' 버튼을 클릭합니다.
 
-   ![Package Manager Add Button](Document/upm-ui-giturl-add.png)
+   ![Package Manager Add Button](https://i.imgur.com/yIiD4tT.png)
 
 #### 설치 방법 2: manifest.json 직접 수정
 
